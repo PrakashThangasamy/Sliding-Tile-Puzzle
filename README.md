@@ -1,5 +1,5 @@
 - 👋 Hi, I’m @SmashPrakash
-- 👀 I’m interested in app development
+- 👀 I’m interested in app development and web development
 - 🌱 I’m currently learning flutter
 - 💞️ I’m looking to collaborate on tata
 - 📫 How to reach me prakashvijay316@gmail.com
