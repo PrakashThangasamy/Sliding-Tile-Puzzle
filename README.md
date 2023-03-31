@@ -1,9 +1,2 @@
-- 👋 Hi, I’m @Prakash
-- 👀 I’m interested in app development and web development
-- 🌱 I’m currently learning Python
-- 📫 How to reach me prakashvijay316@gmail.com
-
-<!---
-SmashPrakash/SmashPrakash is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+Sliding Tile Puzzle
+![image](https://user-images.githubusercontent.com/98002602/229032810-04dc2810-f963-4e74-a17c-1e34f85f9079.png)
