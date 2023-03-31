@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/style.css">
+    <link href='https://fonts.googleapis.com/css?family=Sofia' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet'>
+    <title>Sliding Tile Puzzle</title>
+</head>
+
+<body onload="setUp()">
+    <h1>Sliding Tile Puzzle</h1>
+    <div id="modal" class="hide">
+        <div id="header"><button id="closeBtn" onclick="hideModal()">x</button></div>
+        <h1 id="message">You won!</h1>
+    </div>
+    <div id="container">
+        <ul>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+
+</body>
+<style>
+    * {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    background-color: #114B5F;
+    text-align: center;
+    flex-direction: column;
+    padding-top: 2%;
+
+}
+
+#container {
+    width: 500px;
+    height: 500px;
+    background: #E4FDE1;
+    margin: 10px auto;
+}
+
+ul {
+    display: flex;
+    flex-wrap: wrap;
+    list-style-type: none;
+    justify-content: space-evenly;
+    font-family: 'Audiowide';
+    color: #E4FDE1;
+}
+ul li {
+    background: #456990;
+    width: 30%;
+    height: 150px;
+    border: 1px solid #028090;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 2rem;
+    padding-top: 3rem;
+}
+
+.empty {
+    background: #DAD4EF;
+    border: 2px solid #114B5F;
+}
+
+h1 {
+    color: #E4FDE1;
+    font-family: 'Sofia';
+    text-align: center;
+    
+}
+#modal {
+    width: 40%;
+    height: 300px;
+    background: #DE5360;
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Sofia';
+}
+
+#modal #message {
+    color: #FDE1E3;
+    margin: 0;
+    font-size: 4rem;
+}
+
+.hide {
+    display: none;
+}
+#modal #header {
+    text-align: right;
+    padding: 5px 10px;
+}
+#modal #header button {
+    padding: 10px;
+    border: 0px;
+    background: #456990;
+    color: #E4FDE1;
+    cursor: pointer;
+}
+</style>
+<script>
+    
+// select the list items
+let ul = document.querySelectorAll('li');;
+const letters= ["A", "B", "C", "D", "E", "F", "G", "H", ""]
+
+function setUp() {
+    fillGrid(ul, letters);
+    setId(ul)
+
+    state.content = getState(ul);
+    state.dimension = getDimension(state);
+    // set up the droppable and dragabble contents
+    setDroppable(ul) ;
+    setDraggable(ul);
+
+    console.log("The state content", state.content)
+    console.log("The state dimension", state.dimension)
+    
+}
+
+const state = {}
+state.content = letters;
+
+const getState = (items) => {
+    const content = [];
+    items.forEach((item, i) => {
+        content.push(item.innerText)
+    });
+    return content;
+}
+
+const getEmptyCell = () => {
+    const emptyCellNumber = state.emptyCellIndex+1;
+    const emptyCellRow = Math.ceil(emptyCellNumber/3);
+    const emptyCellCol = 3 - (3 * emptyCellRow - emptyCellNumber);
+    return [emptyCellRow-1, emptyCellCol-1]
+}
+
+
+const getDimension = (state) => {
+    let j = 0;
+    let arr = [];
+    const {content} = state;
+    for(let i = 0; i < 3; i++) {
+        arr.push(content.slice(j, j+3));
+        j+=3;
+    }
+
+    return arr;
+}
+
+const setDroppable = (items) => {
+    items.forEach((item, i) => {
+        if(!item.innerText) {
+            state.emptyCellIndex = i;
+            item.setAttribute("ondrop", "drop_handler(event);");
+            item.setAttribute("ondragover", "dragover_handler(event);");
+            item.setAttribute("class", "empty");
+            item.setAttribute("draggable", "false");
+            item.setAttribute("ondragstart", "");
+            item.setAttribute("ondragend", "")
+        }
+        return;
+        
+    })
+}
+
+
+const removeDroppable = (items) => {
+    items.forEach((item) => {
+        item.setAttribute("ondrop", "");
+        item.setAttribute("ondragover", "");
+        item.setAttribute("draggable", "false");
+        item.setAttribute("ondragstart", "");
+        item.setAttribute("ondragend", "");
+    })
+}
+
+const setDraggable = (items) => {
+    const [row, col] = getEmptyCell();
+
+    let left, right, top, bottom = null;
+    if(state.dimension[row][col-1]) left = state.dimension[row][col-1];
+    if(state.dimension[row][col+1]) right = state.dimension[row][col+1];
+
+    if(state.dimension[row-1] != undefined) top = state.dimension[row-1][col];
+    if(state.dimension[row+1] != undefined) bottom = state.dimension[row+1][col];
+    items.forEach(item => {
+        if(item.innerText == top || 
+            item.innerText == bottom || 
+            item.innerText == right ||
+            item.innerText == left) {
+                item.setAttribute("draggable", "true");
+                item.setAttribute("ondragstart", "dragstart_handler(event)");
+                item.setAttribute("ondragend", "dragend_handler(event)")
+            }
+        
+    })
+}
+const setId = (items) => {
+    for(let i = 0; i < items.length; i++) {
+        items[i].setAttribute("id", `li${i}`)
+    }
+}
+
+const isSolvable = (arr) => {
+    let number_of_inv = 0;
+    for(let i =0; i<arr.length; i++){
+
+        for(let j = i+1; j < arr.length; j++) {
+            if((arr[i] && arr[j]) && arr[i] > arr[j]) number_of_inv++;
+        }
+    }
+
+    return (number_of_inv % 2 == 0);
+}
+
+const isCorrect = (solution, content) => {
+    if(JSON.stringify(solution) == JSON.stringify(content)) return true;
+    return false;
+}
+
+const fillGrid = (items, letters) => {
+    let shuffled = shuffle(letters);
+
+    while(!isSolvable(shuffled)) {
+        shuffled = shuffle(letters);
+    }
+
+    items.forEach((item, i) => {
+        item.innerText = shuffled[i];
+    })
+}
+
+const shuffle = (arr) => {
+    const copy = [...arr];
+    for(let i = 0; i < copy.length; i++) {
+        let j = parseInt(Math.random()*copy.length);
+        let temp = copy[i];
+        copy[i] = copy[j];
+        copy[j] = temp;
+    }   
+    return copy;
+ }
+const dragstart_handler = ev => {
+    console.log("dragstart")
+    ev.dataTransfer.setData("text/plain", ev.target.id)
+    ev.dataTransfer.dropEffect = "move";
+}
+const dragover_handler = ev => {
+    console.log("dragOver");
+    ev.preventDefault();
+}
+const drop_handler = ev => {
+    console.log("drag")
+    ev.preventDefault();
+    const data = ev.dataTransfer.getData("text/plain");
+    ev.target.innerText = document.getElementById(data).innerText;
+    ev.target.classList.remove("empty")
+    ev.target.setAttribute("ondrop", "");
+    ev.target.setAttribute("ondragover", "");
+    document.getElementById(data).innerText = "";
+
+    state.content = getState(ul);
+    state.dimension = getDimension(state);
+}
+const dragend_handler = ev => {
+  console.log("dragEnd");
+  ev.dataTransfer.clearData();
+  removeDroppable(document.querySelectorAll('li'));
+  setDroppable(document.querySelectorAll('li'));
+  setDraggable(document.querySelectorAll('li'))
+    if(isCorrect(letters, state.content)) {
+        showModal();
+    }
+}
+const showModal = () => {
+    document.getElementById('message').innerText = "You Won!";
+    document.getElementById('modal').classList.remove("hide");
+
+}
+const hideModal = () => {
+    document.getElementById('modal').classList.add("hide");
+}
+</script>
+
+</html>
